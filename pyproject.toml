@@ -1,0 +1,15 @@
+[project]
+name = "iot-mqtt-sqs"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11.9"
+dependencies = [
+    "boto3>=1.40.26",
+    "certifi>=2025.8.3",
+    "paho-mqtt>=2.1.0",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
+    "python-dotenv>=1.1.1",
+    "requests>=2.32.5",
+]
