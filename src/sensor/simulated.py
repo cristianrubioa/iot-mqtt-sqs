@@ -16,7 +16,7 @@ class SimulatedSensor(BaseSensor):
     base_humidity: float = 45.0
     humidity_variation: float = 15.0
         
-    def generate_data(self) -> SensorData:
+    def read_data(self) -> SensorData:
         """Generate realistic sensor data with natural variation
         
         Temperature varies around base_temperature ± temperature_variation.
