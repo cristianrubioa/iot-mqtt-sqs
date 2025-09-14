@@ -1,5 +1,6 @@
 
 import random
+import time
 from datetime import datetime, timezone
 from dataclasses import dataclass
 from src.sensor.base import BaseSensor
@@ -22,6 +23,7 @@ class SimulatedSensor(BaseSensor):
         Temperature varies around base_temperature ± temperature_variation.
         Humidity varies around base_humidity ± humidity_variation.
         Timestamp is in ISO format with UTC timezone.
+        Waits for the configured interval before returning data.
         
         Returns:
             SensorData: Object containing device_id, timestamp, temperature and humidity
@@ -33,6 +35,8 @@ class SimulatedSensor(BaseSensor):
         humidity = max(0.0, min(100.0, round(humidity, 2)))
         
         timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        
+        time.sleep(config.sensor.interval)
         
         return SensorData(
             device_id=self.device_id,

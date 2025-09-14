@@ -4,11 +4,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class AWSMqttConfig(BaseModel):
     endpoint: str = Field(..., description="AWS IoT Core endpoint")
     port: int = Field(default=8883, description="MQTT port")
-    topic: str = Field(default="sensor/data", description="MQTT topic")
+    topic: str = Field(default="sdk/test/python", description="MQTT topic")
     keepalive: int = Field(default=60, description="MQTT keepalive timeout in seconds")
-    root_ca: str = Field(default="certs/AmazonRootCA1.pem", description="Root CA certificate path")
-    cert_file: str = Field(default="certs/device-certificate.pem.crt", description="Device certificate path")
-    private_key: str = Field(default="certs/private.pem.key", description="Private key path")
+    client_id: str = Field(default="basicPubSub", description="MQTT client ID")
+    qos: int = Field(default=1, ge=0, le=2, description="MQTT Quality of Service level")
+    root_ca: str = Field(default="certs/root-CA.crt", description="Root CA certificate path")
+    cert_file: str = Field(default="certs/crubio-device.cert.pem", description="Device certificate path")
+    private_key: str = Field(default="certs/crubio-device.private.key", description="Private key path")
 
 
 class SensorConfig(BaseModel):

@@ -1,13 +1,17 @@
 import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Any, Optional, Type
 from paho.mqtt import client as mqtt_client
 
 logger = logging.getLogger(__name__)
 
+@dataclass
 class BasePublisher(ABC):
+    client_id: str = ""
+    
     def __post_init__(self) -> None:
-        self.client = mqtt_client.Client()
+        self.client = mqtt_client.Client(client_id=self.client_id)
         self._setup_callbacks()
     
     def _setup_callbacks(self) -> None:
@@ -17,14 +21,19 @@ class BasePublisher(ABC):
     
     def _on_connect(self, client: mqtt_client.Client, userdata: Any, flags: dict, rc: int) -> None:
         del client, userdata, flags
-        if rc == 0:
+        if rc == mqtt_client.MQTT_ERR_SUCCESS:
             logger.info("Connected to MQTT broker")
         else:
-            logger.error(f"Connection failed with code {rc}")
+            logger.error(f"Connection failed with code {rc}: {mqtt_client.connack_string(rc)}")
             
     def _on_disconnect(self, client: mqtt_client.Client, userdata: Any, rc: int) -> None:
         del client, userdata
-        logger.warning(f"Disconnected from MQTT broker (code: {rc})")
+        if rc == mqtt_client.MQTT_ERR_SUCCESS:
+            logger.info("Disconnected from MQTT broker (normal)")
+        elif rc == mqtt_client.MQTT_ERR_CONN_LOST:
+            logger.debug("Disconnected from MQTT broker (network error - will retry)")
+        else:
+            logger.warning(f"Disconnected from MQTT broker unexpectedly (code: {rc})")
         
     def _on_publish(self, client: mqtt_client.Client, userdata: Any, mid: int) -> None:
         del client, userdata

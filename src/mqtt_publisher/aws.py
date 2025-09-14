@@ -10,10 +10,14 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AWSMQTTPublisher(BasePublisher):
+    client_id: str = ""
+    
     def __post_init__(self) -> None:
+        if not self.client_id:
+            self.client_id = config.aws_mqtt.client_id
         super().__post_init__()
         self._setup_ssl()
-        
+    
     def _setup_ssl(self) -> None:
         try:
             context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
@@ -42,7 +46,7 @@ class AWSMQTTPublisher(BasePublisher):
             else:
                 payload = str(data)
             
-            result = self.client.publish(config.aws_mqtt.topic, payload)
+            result = self.client.publish(config.aws_mqtt.topic, payload, qos=config.aws_mqtt.qos)
             if result.rc != mqtt_client.MQTT_ERR_SUCCESS:
                 logger.error(f"Failed to publish: {result.rc}")
                 return False

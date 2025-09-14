@@ -1,7 +1,6 @@
 from src.sensor.simulated import SimulatedSensor
 from src.mqtt_publisher.aws import AWSMQTTPublisher
 from config import config
-import time
 
 def main():
     sensor = SimulatedSensor(device_id=config.sensor.device_id)
@@ -12,11 +11,9 @@ def main():
             print(f"Generated: {data}")
             
             if publisher.publish(data):
-                print("✅ Published to MQTT")
+                print("Published to MQTT successfully\n")
             else:
-                print("❌ Failed to publish")
-                
-            time.sleep(config.sensor.interval)
+                print("Failed to publish to MQTT\n")
 
 if __name__ == "__main__":
     main()
