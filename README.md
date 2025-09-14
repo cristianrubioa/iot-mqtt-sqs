@@ -5,14 +5,35 @@ Python-based MQTT data server sending sensor data to AWS IoT and SQS.
 ## Architecture
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│ SimulatedSensor │───▶│ AWSMQTTPublisher │───▶│   AWS IoT Core  │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ SimulatedSensor │───▶│ AWSMQTTPublisher │───▶│   AWS IoT Core  │───▶│   IoT Rule      │
+│   (Pseudo-      │    │  (Paho MQTT)     │    │   (IoT Thing)   │    │ (Auto-routing)  │
+│   Sensor Code)  │    └──────────────────┘    └─────────────────┘    └─────────────────┘
+└─────────────────┘                                                            │
+                                                                               ▼
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ Python Client   │◀───│   AWSSQSClient   │◀───│   AWS SQS       │◀───│  SQS Action     │
+│   (Consumer)    │    │   (Boto3 SQS)    │    │    Queue        │    │ (Rule Target)   │
+└─────────────────┘    └──────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-- **SimulatedSensor**: Generates realistic sensor data with configurable intervals
-- **AWSMQTTPublisher**: Handles secure MQTT connection with automatic reconnection
-- **AWS IoT Core**: Receives and processes sensor data in the cloud
+**Data Flow:**
+1. Sensor generates data → MQTT publish to IoT Core
+2. IoT Rule automatically routes messages → SQS Queue  
+3. Consumer reads and processes from SQS Queue
+
+## AWS IoT Rule Configuration
+
+You need to create an IoT Rule in AWS Console:
+
+**Rule Query:**
+```sql
+SELECT * FROM 'sdk/test/python'
+```
+
+**Action:** Send message to SQS Queue
+- **Queue URL:** Your SQS queue URL
+- **Use Base64:** No
 
 ## Development
 

@@ -23,6 +23,8 @@ class AWSSqsConfig(BaseModel):
     queue_url: str = Field(..., description="SQS Queue URL")
     region: str = Field(default="us-east-1", description="AWS region")
     message_group_id: str = Field(default="", description="Message group ID for FIFO queues (leave empty for Standard)")
+    max_messages: int = Field(default=10, ge=1, le=10, description="Maximum messages to receive per request")
+    wait_time_seconds: int = Field(default=20, ge=0, le=20, description="Long polling wait time in seconds")
 
 class Config(BaseSettings):
     log_level: str = Field(default="INFO", description="Logging level")
